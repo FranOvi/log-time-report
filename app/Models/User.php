@@ -11,6 +11,11 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    public function loggedTimeUsers()
+    {
+        return $this->hasMany(LoggedTimeUser::class, 'user_id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *
