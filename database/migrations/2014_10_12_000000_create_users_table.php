@@ -20,11 +20,11 @@ class CreateUsersTable extends Migration
             $table->string('mobile')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
-            $table->string('two_factor_secret')->nullable();;
+            $table->string('two_factor_secret')->nullable();
             $table->string('two_factor_recovery_codes')->nullable();;
             $table->rememberToken();
             $table->timestamps();
-            $table->bigInteger('current_team_id')->unsigned();
+            $table->bigInteger('current_team_id')->unsigned()->nullable();
             $table->softDeletes();
             $table->timestamp('last_password_change')->nullable();
         });
