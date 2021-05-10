@@ -42,7 +42,33 @@ class LoggedTimeUserController extends Controller
                         ->where('loggedtime_users.updated_at', '<', $end_date->toDateString());
                 });
         }
+
+        if ($request->has('order_by'))
+        {
+            //->orderBy('users.name', 'desc')
+            //->orderBy('users.email', 'desc')
+            //->orderBy('loggedtime_users.created_at', 'desc')
+            //->orderBy('log_time', 'desc')
+        }
         
+        if ($request->has('order_by'))
+        {
+            switch ($request->order_by) {
+                case 'name':
+                    $termQuery = $query->orderBy('users.name', 'asc');
+                    break;
+                case 'email':
+                    $termQuery = $query->orderBy('users.email', 'asc');
+                    break;
+                case 'date':
+                    $termQuery = $query->orderBy('loggedtime_users.created_at', 'asc');
+                    break;
+                case 'time':
+                    $termQuery = $query->orderBy('log_time', 'asc');
+                    break;
+            }
+        }
+
         $loggedTimeUsers = $query->get();
         //$loggedTimeUsers = Str::replaceArray('?', $query->getBindings(), $query->toSql());
         return response()->json($loggedTimeUsers, 200);
