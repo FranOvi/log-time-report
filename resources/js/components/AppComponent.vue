@@ -4,21 +4,21 @@
       <div class="col-12">
           <!-- search -->
           <div class="form-group">
-            <input type="text" class="form-control" value="" placeholder="Buscar por nombre o email">
+            <input v-model="search" type="text" class="form-control" value="" placeholder="Buscar por nombre o email">
           </div>
       </div>
       <div class="col">
           <!-- order_by -->
           <div class="form-group">
             <label for="start_date">Desde:</label>
-            <input name="start_date" type="date" class="form-control" value="">
+            <input v-model="start_date" name="start_date" type="date" class="form-control" value="">
           </div>
       </div>
       <div class="col">
           <!-- order_by -->
           <div class="form-group">
             <label for="end_date">Hasta:</label>
-            <input name="end_date" type="date" class="form-control" value="">
+            <input v-model="end_date" name="end_date" type="date" class="form-control" value="">
           </div>
       </div>
 
@@ -26,13 +26,21 @@
           <!-- order_by -->
           <div class="form-group">
             <label for="order_by">Ordenar por</label>
-            <select name="order_by" class="custom-select">
+            <select v-model="order_by" name="order_by" class="custom-select">
               <option value="">Seleccione</option>
               <option value="name">Nombre</option>
               <option value="email">Email</option>
               <option value="date">Fecha</option>
               <option value="time">Tiempo</option>
             </select>
+          </div>
+      </div>
+
+      <div class="col d-flex flex-column justify-content-end">
+          <div class="form-group">
+            <button class="btn btn-secondary btn-block" type="button" @click="applyFilter">
+              Aplicar filtros
+            </button>
           </div>
       </div>
     </div>
@@ -69,6 +77,15 @@
 import { mapGetters, mapActions } from 'vuex';
 
 export default {
+  data() {
+    return {
+      search: '',
+      start_date: '',
+      end_date: '',
+      order_by: ''
+    }
+  },
+
   computed: {
     ...mapGetters([
       'allLoggedTimes'
@@ -77,8 +94,13 @@ export default {
 
   methods: {
     ...mapActions([
-      'getLoggedTimes'
-    ])
+      'getLoggedTimes',
+      'filterLoggedTimes'
+    ]),
+
+    applyFilter(){
+      this.filterLoggedTimes({search: this.search, start_date: this.start_date, end_date: this.end_date, order_by: this.order_by});
+    }
   },
 
   created() {

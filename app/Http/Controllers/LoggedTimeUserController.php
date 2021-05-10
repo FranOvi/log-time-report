@@ -42,14 +42,6 @@ class LoggedTimeUserController extends Controller
                         ->where('loggedtime_users.updated_at', '<', $end_date->toDateString());
                 });
         }
-
-        if ($request->has('order_by'))
-        {
-            //->orderBy('users.name', 'desc')
-            //->orderBy('users.email', 'desc')
-            //->orderBy('loggedtime_users.created_at', 'desc')
-            //->orderBy('log_time', 'desc')
-        }
         
         if ($request->has('order_by'))
         {
