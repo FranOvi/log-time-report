@@ -23,8 +23,8 @@ class LoggedTimeUserController extends Controller
         if ($request->has('search'))
         {
             $query = $query->where(function ($query) use ($request){
-                    $query->where('users.name', 'like', '%'.$request->search.'%')
-                        ->orWhere('users.email', 'like', '%'.$request->search.'%');
+                    $query->where('users.name', 'like', "%".$request->search."%")
+                        ->orWhere('users.email', 'like', "%".$request->search."%");
                 });
         }
 
@@ -53,7 +53,7 @@ class LoggedTimeUserController extends Controller
                     $termQuery = $query->orderBy('users.email', 'asc');
                     break;
                 case 'date':
-                    $termQuery = $query->orderBy('loggedtime_users.created_at', 'asc');
+                    $termQuery = $query->orderBy(DB::raw('date(loggedtime_users.created_at)'), 'asc');
                     break;
                 case 'time':
                     $termQuery = $query->orderBy('log_time', 'asc');
