@@ -3,83 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\LoggedTimeUser;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LoggedTimeUserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function get(Request $request)
     {
-        //
-    }
+        $query = LoggedTimeUser::selectRaw(
+                'users.name, users.email, '.
+                'sec_to_time(SUM(time_to_sec(TIMEDIFF(loggedtime_users.updated_at, loggedtime_users.created_at)))) as log_time, '.
+                'date(loggedtime_users.created_at) as log_date'
+            )
+            ->join('users', 'loggedtime_users.user_id', '=', 'users.id')
+            ->groupBy([DB::raw('date(loggedtime_users.created_at)'), 'users.name', 'users.email']);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+        if ($request->has('search'))
+        {
+            $query = $query->where(function ($query) use ($request){
+                    $query->where('users.name', 'like', '%'.$request->search.'%')
+                        ->orWhere('users.email', 'like', '%'.$request->search.'%');
+                });
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if ($request->has('start_date'))
+        {
+            $start_date = Carbon::createFromFormat('Y-m-d', $request->start_date)->startOfDay();
+            $end_date = $start_date->copy()->addDay(1);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\LoggedTimeUser  $loggedTimeUser
-     * @return \Illuminate\Http\Response
-     */
-    public function show(LoggedTimeUser $loggedTimeUser)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\LoggedTimeUser  $loggedTimeUser
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(LoggedTimeUser $loggedTimeUser)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\LoggedTimeUser  $loggedTimeUser
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, LoggedTimeUser $loggedTimeUser)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\LoggedTimeUser  $loggedTimeUser
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(LoggedTimeUser $loggedTimeUser)
-    {
-        //
+            if ($request->has('end_date')){
+                $end_date = Carbon::createFromFormat('Y-m-d', $request->end_date)->addDay(1);
+            }
+            
+            $query = $query->where(function ($query) use ($request, $start_date, $end_date){
+                    $query->where('loggedtime_users.created_at', '>=', $start_date->toDateString())
+                        ->where('loggedtime_users.updated_at', '<', $end_date->toDateString());
+                });
+        }
+        
+        $loggedTimeUsers = $query->get();
+        //$loggedTimeUsers = Str::replaceArray('?', $query->getBindings(), $query->toSql());
+        return response()->json($loggedTimeUsers, 200);
     }
 }
